@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import LvlButton from "../../components/Oraginis/LvlButton";
 import LvlTable from "../../components/Oraginis/LvlTable";
-import LvlTextField from "../../components/Oraginis/LvlTextField";
 
 const columnStyles = {
     checkbox: { backgroundColor: 'lightgray' },
@@ -13,7 +12,6 @@ const columnStyles = {
   };
 const Post = () =>{
     const [porst,setPorst] = useState([]);
-    
     const handleClickBtn = () =>{
         console.log('aaaa');
     }
@@ -28,14 +26,16 @@ const Post = () =>{
             console.log(err);
         }
     }
-
     useEffect( () =>{
         getUsers();
     },[])
     return <>
     <div>
-        <LvlButton onClick={handleClickBtn} label='delete'></LvlButton>
-        <LvlTextField></LvlTextField>
+        <div className="w-full flex justify-end mb-2">
+            <LvlButton onClick={handleClickBtn} label='Add' styled={{marginRight : '1rem'}}></LvlButton>
+            <LvlButton onClick={handleClickBtn} label='Edit' styled={{marginRight : '1rem'}}></LvlButton>
+            <LvlButton onClick={handleClickBtn} label='Delete' styled={{marginRight : '1rem'}}></LvlButton>
+        </div>
         <LvlTable data={porst} columnStyles={columnStyles} pagination={true} selected="multiple" scrollHeight={'450px'} sort={true}></LvlTable>
     </div>
     </>

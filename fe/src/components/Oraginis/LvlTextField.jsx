@@ -1,10 +1,8 @@
 import { TextField } from "@mui/material";
-import { useState } from "react";
 
-const LvlTextField = ({label = "", placeholder = "",size = "small",value,onChange}) =>{
-    const [value,setValue] = useState("");
+const LvlTextField = ({label="",placeholder = "",size = "small",value,onChange}) =>{
     return <>
-        <TextField  size={size} placeholder={placeholder} value={value} />
+        <TextField label={label}  size={size} placeholder={placeholder} value={value} onChange={onChange} />
     </>
 }
 
