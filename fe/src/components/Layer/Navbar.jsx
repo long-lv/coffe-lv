@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import NavItems from "./NavItems";
 
 const NavBar = () => {
     const navigate = useNavigate();
+    const locationPathCurrent = useLocation();
     const [navBars,setNavBars] = useState([
         {
             navName: 'dashboard',
@@ -46,13 +47,12 @@ const NavBar = () => {
             path : "/admin/customer"
         },
         {
-            navName: 'menu',
+            navName: 'menu list',
             active : false,
             path : "/admin/menu"
         },
     ])
-
-    const setActiveNav = (index,path) =>{
+    const setActiveNav = (index,path = "",isRedirect = false) =>{
         const setActiveBar = navBars.map((item,key) =>{
             if(key === index){
                 item.active = true;
@@ -61,12 +61,24 @@ const NavBar = () => {
             }
             return item;
         })
-        navigate(path);
         setNavBars(setActiveBar);
-
+        if(isRedirect){
+            navigate(path ?? "/");
+        }
     }
+    const checkRouteLocationActive = () =>{
+        const findIndexPathCurrent  = navBars.findIndex(nav => nav.path === locationPathCurrent?.pathname);
+        if(findIndexPathCurrent !== -1) {
+            setActiveNav(findIndexPathCurrent)
+        }
+    }
+
+    useEffect(() =>{
+        checkRouteLocationActive()
+    },[])
+
     return <>
-        <div className='col-span-1'>
+        <div className='col-span-1 px-4 text-white py-2'>
             <ul>
                 {
                     navBars.map((nav,key) =>{

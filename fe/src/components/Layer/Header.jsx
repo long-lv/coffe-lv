@@ -1,6 +1,6 @@
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
-import LvlSearch from "./Oraginis/LvlSearchBar";
+import LvlSearch from "../Oraginis/LvlSearchBar";
 const Header = () => {
    const [searchTerm,setSearchTerm] = useState("");
    // handle search 
@@ -16,7 +16,9 @@ const Header = () => {
                 <LvlSearch onSearch={handleSearch}/>
             </div>
             <div className='info-wrap'>
-                <h4 className='pr-4 ml-2'>LongLv-Longlv@runsystem.net</h4>
+                <h4 className='pr-4 ml-2 text-primary'>
+                    LongLv-Longlv@runsystem.net 
+                </h4>
             </div>
            </div>
         </div>

@@ -8,3 +8,7 @@
         @apply text-2xl;
     }
 }
+
+.MuiTablePagination-toolbar {
+    float : left;
+}
