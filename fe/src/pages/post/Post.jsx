@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import LvlButton from "../../components/Oraginis/LvlButton";
+import LvlDialog from "../../components/Oraginis/LvlDialog";
 import LvlTable from "../../components/Oraginis/LvlTable";
+import LvlTextField from "../../components/Oraginis/LvlTextField";
 
 const columnStyles = {
     checkbox: { backgroundColor: 'lightgray' },
@@ -12,10 +14,11 @@ const columnStyles = {
   };
 const Post = () =>{
     const [porst,setPorst] = useState([]);
+    const [value,setValue] = useState('');
+    const [visibleDialogAdd,setVisibleDialogAdd] = useState(false);
     const handleClickBtn = () =>{
         console.log('aaaa');
     }
-
     const getUsers = async () =>{
         try{
             const res = await axios.get('https://jsonplaceholder.typicode.com/posts');
@@ -26,13 +29,28 @@ const Post = () =>{
             console.log(err);
         }
     }
+
+    const onSubmitDialogAdd = () =>{
+        console.log(value,'submit');
+        setVisibleDialogAdd(false);
+    }   
+
+    const handleBtnAdd = () =>{
+        setVisibleDialogAdd(true);
+    }
+    const handleCancelDialogAdd = () =>{
+        setVisibleDialogAdd(false);
+    }
     useEffect( () =>{
         getUsers();
     },[])
     return <>
     <div>
+        <LvlDialog header="lvl" handleSubmit={onSubmitDialogAdd} handleCancel={handleCancelDialogAdd} visible={visibleDialogAdd}>
+            <LvlTextField value={value} onChange={(e) => setValue(e.target.value)}/>
+        </LvlDialog>
         <div className="w-full flex justify-end mb-2">
-            <LvlButton onClick={handleClickBtn} label='Add' styled={{marginRight : '1rem'}}></LvlButton>
+            <LvlButton onClick={handleBtnAdd} label='Add' styled={{marginRight : '1rem'}}></LvlButton>
             <LvlButton onClick={handleClickBtn} label='Edit' styled={{marginRight : '1rem'}}></LvlButton>
             <LvlButton onClick={handleClickBtn} label='Delete' styled={{marginRight : '1rem'}}></LvlButton>
         </div>
