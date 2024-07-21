@@ -1,0 +1,2 @@
+###signup
+POST http://localhost:3066/v1/api/admin/signup
