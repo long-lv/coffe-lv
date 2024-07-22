@@ -9,17 +9,18 @@ import LvlSelect from "../../components/Oraginis/LvlSelect";
 import LvlTable from "../../components/Oraginis/LvlTable";
 import LvlTextArea from "../../components/Oraginis/LvlTextArea";
 import LvlTextField from "../../components/Oraginis/LvlTextField";
+import MyEditor from "../../components/Oraginis/MyEditor";
 import LvlLabel from "../../components/molecules/LvlLabel";
 
-const columnStyles = {
-    checkbox: { backgroundColor: 'lightgray' },
-    userId: { backgroundColor: 'lightyellow' },
-    id: { backgroundColor: 'lightblue' },
-    title: { backgroundColor: 'lightgreen' },
-    body: { backgroundColor: 'lightcoral' },
-  };
+// const columnStyles = {
+//     checkbox: { backgroundColor: 'lightgray' },
+//     userId: { backgroundColor: 'lightyellow' },
+//     id: { backgroundColor: 'lightblue' },
+//     title: { backgroundColor: 'lightgreen' },
+//     body: { backgroundColor: 'lightcoral' },
+// };
 
-  const categories = [
+const categories = [
     {
       "categories_id": "1",
       "name": "New Years Parties",
@@ -35,40 +36,54 @@ const columnStyles = {
       "name": "Lindy Calendar",
       "slug": "nightlife-calendar"
     }
-  ]
+]
 const Post = () =>{
-    const [porst,setPorst] = useState([]);
-    const [newPost,setNewPost] = useState({
+    const [posts,setPosts] = useState([]);
+    const [content,setContent] = useState('');
+    const [post,setPost] = useState({
         title : "",
         category : null,
         created_at : dayjs(),
         description: "",
-        active : true
+        active : true,
     })
+    const [selectedRows, setSelectedRows] = useState([]);
+
+    const handleSelectedRowsChange = (selectedRows) => {
+      setSelectedRows(selectedRows);
+    };
+    
+    const handleGetContent = (content) =>{
+        setContent(content)
+    }
     const [visibleDialogAdd,setVisibleDialogAdd] = useState(false);
 
     const onSubmitDialogAdd = () =>{
         setVisibleDialogAdd(false);
-        setNewPost({})
-        console.log(newPost)
     }   
 
     const handleBtnAdd = () =>{
         setVisibleDialogAdd(true);
+        setPost({
+            title : "",
+            category : null,
+            created_at : dayjs(),
+            description: "",
+            content :"",
+            active : true
+        })
     }
     const handleCancelDialogAdd = () =>{
         setVisibleDialogAdd(false);
-        setNewPost({})
     }
     const handleChangeCreatedAtNewPost = (value) =>{
-        setNewPost({...newPost,created_at : value.format('YYYY-MM-DD')})
+        setPost({...post,created_at : value.format('YYYY-MM-DD')})
     }
-
     const getUsers = async () =>{
         try{
             const res = await axios.get('https://jsonplaceholder.typicode.com/posts');
             if(res.data && res.data.length){
-                setPorst(res.data);
+                setPosts(res.data);
             }
         }catch (err) {
             console.log(err);
@@ -76,24 +91,47 @@ const Post = () =>{
     }
     useEffect( () =>{
         getUsers();
-    },[])
+},[])
     return <>
     <div>
-        <LvlDialog header="Creat New Post" handleSubmit={onSubmitDialogAdd} handleCancel={handleCancelDialogAdd} visible={visibleDialogAdd}>
+        <div className="w-full flex justify-end mb-2">
+            <LvlButton onClick={handleBtnAdd} label='Add' styled={{marginRight : '1rem'}}></LvlButton>
+            <LvlButton label='Edit' styled={{marginRight : '1rem'}}></LvlButton>
+            <LvlButton label='Delete' styled={{marginRight : '1rem'}}></LvlButton>
+        </div>
+        <LvlTable
+                data={posts}
+                rows={10} 
+                //  columnStyles={columnStyles} 
+                pagination={true}
+                selected="multiple" 
+                scrollHeight={'800px'} 
+                sort={true}
+                onSelectedRowsChange={handleSelectedRowsChange}
+                >
+        </LvlTable>
+        {/* dialog add post */}
+        <LvlDialog 
+            header="Creat New Post"
+            visible={visibleDialogAdd} 
+            size={'xl'} 
+            labelBtnSubmit={'Add'}
+            handleSubmit={onSubmitDialogAdd} 
+            handleCancel={handleCancelDialogAdd} >
             <div className="flex mb-3">
                 <LvlLabel required className={'text-lg w-16 flex items-center'}>Title</LvlLabel>
                 <div className="ml-2">
                 <LvlTextField 
                             placeholder="Title..." 
-                            value={newPost.title} fullWidth={true} 
-                            onChange={(e) => setNewPost({...newPost,title : e.target.value})}/>
+                            value={post.title} fullWidth={true} 
+                            onChange={(e) => setPost({...post,title : e.target.value})}/>
                 </div>
             </div>
             <div className="flex mb-3">
                 <LvlLabel className={'text-lg w-16 flex items-center'}>Category</LvlLabel>
                 <LvlSelect 
-                        value={newPost.category} 
-                        onChange={(e) =>setNewPost({...newPost,category : e.target.value})}
+                        value={post.category} 
+                        onChange={(e) =>setPost({...post,category : e.target.value})}
                         options={categories} 
                         optionLabel={'name'}
                         optionValue={'categories_id'} 
@@ -106,22 +144,22 @@ const Post = () =>{
             <div className="flex mb-3">
                 <LvlLabel className={'text-lg w-16 flex items-center'}>Desc</LvlLabel>
                 <div className="ml-4 w-full">
-                    <LvlTextArea value={newPost.description} fullWidth={true} placeholder="Description..." rows={4} onChange={(e) => setNewPost({...newPost,description : e.target.value})}/>
+                    <LvlTextArea value={post.description} fullWidth={true} placeholder="Description..." rows={4} onChange={(e) => setPost({...post,description : e.target.value})}/>
+                </div>
+            </div>
+            <div className="flex mb-3">
+                <LvlLabel className={'text-lg w-16 flex items-center'}>Content</LvlLabel>
+                <div className="ml-4 w-full">
+                    <MyEditor value={content} onChange={handleGetContent} placeholder={'typing content...'} height={400}></MyEditor>
                 </div>
             </div>
             <div className="flex mb-3">
                 <LvlLabel className={'text-lg w-16 flex items-center'}>Active</LvlLabel>
                 <div className="ml-1 w-full">
-                    <LvlCheckbox value={newPost.active} onChange={(e) => setNewPost({...newPost,active : e.target.checked})}></LvlCheckbox>
+                    <LvlCheckbox value={post.active} onChange={(e) => setPost({...post,active : e.target.checked})}></LvlCheckbox>
                 </div>
             </div>
         </LvlDialog>
-        <div className="w-full flex justify-end mb-2">
-            <LvlButton onClick={handleBtnAdd} label='Add' styled={{marginRight : '1rem'}}></LvlButton>
-            <LvlButton label='Edit' styled={{marginRight : '1rem'}}></LvlButton>
-            <LvlButton label='Delete' styled={{marginRight : '1rem'}}></LvlButton>
-        </div>
-        <LvlTable data={porst} columnStyles={columnStyles} pagination={true} selected="multiple" scrollHeight={'450px'} sort={true}></LvlTable>
     </div>
     </>
 }

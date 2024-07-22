@@ -1,29 +1,28 @@
 import {
-    Box,
-    Checkbox,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableFooter,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TableSortLabel
+  Box,
+  Checkbox,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel
 } from '@mui/material';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,10,20],selected ,onRowClick,sort,columnStyles }) => {
+const LvlTable = ({ data = [], scrollHeight, height="88vh", rows = 10, pagination, rowPerpageOption = [5,10,20], selected, onRowClick, onSelectedRowsChange, sort, columnStyles }) => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(rows);
   const [selectedRows, setSelectedRows] = useState([]);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('');
   const isSelected = (row) => selectedRows.indexOf(row) !== -1;
 
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
   const sortedData = sort
     ? data.slice().sort((a, b) => {
@@ -33,6 +32,7 @@ const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,1
         return 0;
       })
     : data;
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -42,41 +42,35 @@ const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,1
     setPage(0);
   };
 
+  useEffect(() => {
+    setRowsPerPage(rows);
+  }, [rows]);
+
   // hàm xử lý sự kiện rowclick
   const handleRowClick = (row) => {
-    // kiểm tra kiểu chọn là multiple hay single
-    // nếu là multiple thực hiện logic để chọn hoặc bỏ chọn nhiều hàng.
     if (selected === 'multiple') {
-      //Tìm vị trí của hàng hiện tại
       const selectedIndex = selectedRows.indexOf(row);
       let newSelected = [];
       
-      // Nếu hàng chưa được chọn. Thêm hàng hiện tại vào mảng
       if (selectedIndex === -1) {
         newSelected = newSelected.concat(selectedRows, row);
-      } 
-      // Nếu hàng là phần tử đầu tiên trong mảng. Bỏ hàng đầu tiên và giữ lại các hàng khác
-      else if (selectedIndex === 0) {
+      } else if (selectedIndex === 0) {
         newSelected = newSelected.concat(selectedRows.slice(1));
-      } 
-      // Nếu hàng là phần tử cuối cùng trong mảng. Bỏ hàng cuối cùng và giữ lại các hàng khác
-      else if (selectedIndex === selectedRows.length - 1) {
+      } else if (selectedIndex === selectedRows.length - 1) {
         newSelected = newSelected.concat(selectedRows.slice(0, -1));
-      } 
-      // Nếu hàng nằm ở vị trí giữa mảng.Bỏ hàng ở vị trí selectedIndex và giữ lại các hàng khác.
-      else if (selectedIndex > 0) {
+      } else if (selectedIndex > 0) {
         newSelected = newSelected.concat(
           selectedRows.slice(0, selectedIndex),
           selectedRows.slice(selectedIndex + 1),
         );
       }
-      //Cập nhật trạng thái selectedRows
       setSelectedRows(newSelected);
-      // nếu là single thực hiện logic để chọn một hàng duy nhất.
+      if (onSelectedRowsChange) onSelectedRowsChange(newSelected);
     } else if (selected === 'single') {
       setSelectedRows([row]);
+      if (onSelectedRowsChange) onSelectedRowsChange([row]);
     }
-    //Gọi callback onRowClick nếu được cung cấp
+
     if (onRowClick) {
       onRowClick(row);
     }
@@ -89,13 +83,12 @@ const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,1
   };
 
   return (
-    <TableContainer component={Paper} style={{ maxHeight: scrollHeight }}>
-      <Table stickyHeader>
+    <TableContainer component={Paper} style={scrollHeight ? { maxHeight: scrollHeight} : { height : height }}>
+      <Table stickyHeader className='h-full'>
         <TableHead>
           <TableRow>
            {
-                data.length > 0 ? 
-
+                data.length > 0 && (
                 <TableCell padding="checkbox" style={columnStyles && columnStyles['checkbox'] ? columnStyles['checkbox'] : {}}>
                     <Checkbox
                     indeterminate={
@@ -105,17 +98,18 @@ const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,1
                     onChange={(event) => {
                         if (event.target.checked) {
                         setSelectedRows(data);
+                        if (onSelectedRowsChange) onSelectedRowsChange(data);
                         } else {
                         setSelectedRows([]);
+                        if (onSelectedRowsChange) onSelectedRowsChange([]);
                         }
                     }}
                     />
-              </TableCell>
-              : <></>
+                </TableCell>
+              )
            }
             {
-            data.length > 0 ? 
-            Object.keys(data[0]).map((key) => (
+            data.length > 0 && Object.keys(data[0]).map((key) => (
                 <TableCell
                   key={key}
                   sortDirection={orderBy === key ? order : false}
@@ -131,10 +125,9 @@ const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,1
                     </TableSortLabel>
                   ) : (
                     key
-                  )
-            }
+                  )}
                 </TableCell>
-            ))  : <></>}
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -171,13 +164,13 @@ const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,1
           )}
         </TableBody>
         {
-         pagination && data.length > 0 ? 
+         pagination && data.length > 0 && (
             <TableFooter>
             <TableRow>
                 <TableCell colSpan={data.length > 0  ? Object.keys(data[0]).length + 1 : 0}>
                 <Box display="flex" justifyContent="flex-end">
                     <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
+                    rowsPerPageOptions={rowPerpageOption}
                     count={data.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
@@ -189,7 +182,7 @@ const LvlTable = ({ data = [], scrollHeight, pagination ,rowPerpageOption = [5,1
                 </TableCell>
             </TableRow>
             </TableFooter>
-        : <></>
+         )
         }
       </Table>
     </TableContainer>
