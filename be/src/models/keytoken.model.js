@@ -5,18 +5,26 @@ const DOCUMENT_NAME = "Key"
 const COLLECTION_NAME = "Keys"
 // Declare the Schema of the Mongo model
 var keyTokenSchema = new Schema({
-    user:{
+    user: {
         type:Schema.Types.ObjectId,
         required:true,
-        ref : "Account"
+        ref : "Accounts"
     },
-    publicKey:{
+    publicKey: {
         type:String,
         required:true,
     },
-    refreshToken:{
+    privateKey: {
+        type:String,
+        required:true,
+    },
+    refreshTokenUsed: {
         type: Array,
-        default : []
+        default : [] // nhung refersh toke da duoc su dung 
+    },
+    refeshToken : {
+        type : String,
+        required : true
     }
 },{
     collection : COLLECTION_NAME,
